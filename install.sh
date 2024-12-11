@@ -14,7 +14,6 @@ sudo apt install -y \
     libssl-dev \
     liblzma-dev \
     ipython3 \
-    vim \
     net-tools \
     python3-dev \
     python3-pip \
