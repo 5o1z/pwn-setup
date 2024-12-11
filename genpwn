@@ -8,15 +8,14 @@ from pwncus import *
 
 exe = context.binary = ELF('./{exe_path}', checksec=False)
 {libc_line}
-HOST = ''
-PORT = 
+
 def GDB(): gdb.attach(p, gdbscript='''
 
 
 c
 ''') if not args.REMOTE else None
 
-p = remote(HOST, PORT) if args.REMOTE else process(argv=[exe.path], aslr=False)
+p = remote('', ) if args.REMOTE else process(argv=[exe.path], aslr=False)
 set_p(p)
 if args.GDB: GDB(); input()
 
