@@ -1,0 +1,56 @@
+#!/usr/bin/python3
+
+import sys
+import os
+from pathlib import Path
+script_template = """#!/usr/bin/python3
+from pwncus import *
+
+exe = context.binary = ELF('./{exe_path}', checksec=False)
+{libc_line}
+HOST = ''
+PORT = 
+def GDB(): gdb.attach(p, gdbscript='''
+
+
+c
+''') if not args.REMOTE else None
+
+p = remote(HOST, PORT) if args.REMOTE else process(argv=[exe.path], aslr=False)
+set_p(p)
+if args.GDB: GDB(); input()
+
+# ===========================================================
+#                          EXPLOIT 
+# ===========================================================
+
+
+
+interactive()
+"""
+
+def main():
+    if len(sys.argv) < 2:
+        print("Usage: genpwn <binary_path> [libc_path]")
+        sys.exit(1)
+    
+    binary_path = sys.argv[1]
+    libc_path = sys.argv[2] if len(sys.argv) > 2 else None
+    
+    script_content = script_template.format(
+        exe_path = binary_path,
+        libc_line = f"libc = ELF('{libc_path}', checksec=False)" if libc_path else ""
+    )
+    
+    exploit_path = Path("exploit.py")
+    exploit_path.write_text(script_content)
+    exploit_path.chmod(0o755)
+    
+    binary_file = Path(binary_path)
+    if binary_file.exists():
+        binary_file.chmod(0o755)
+    
+    os.system(f"subl {exploit_path}")
+
+if __name__ == "__main__":
+    main()
