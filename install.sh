@@ -21,7 +21,6 @@ sudo apt install -y \
     build-essential \
     ruby \
     ruby-dev \
-    tmux \
     strace \
     ltrace \
     radare2 \
@@ -61,6 +60,13 @@ echo "[*] Configuring Zsh plugins in .zshrc..."
 sed -i '/^plugins=/c\plugins=(git zsh-autosuggestions zsh-completions)' ~/.zshrc
 echo "source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" >> ~/.zshrc
 
+echo "[*] Reloading Zsh configuration..."
+source ~/.zshrc
+
+echo "[*] Upgrading pip and installing pwntools..."
+python3 -m pip install -U pip
+python3 -m pip install --break-system-packages --no-cache-dir pwntools
+
 echo "[*] Adding PATH and PYTHONPATH to .zshrc and Setup custom tools..."
 echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
 echo 'export PYTHONPATH=~/custom_libs:$PYTHONPATH' >> ~/.zshrc
@@ -68,13 +74,6 @@ chmod +x crun
 chmod +x genpwn
 sudo cp genpwn /usr/bin/
 sudo cp crun /usr/bin/
-
-echo "[*] Reloading Zsh configuration..."
-source ~/.zshrc
-
-echo "[*] Upgrading pip and installing pwntools..."
-python3 -m pip install -U pip
-python3 -m pip install --break-system-packages --no-cache-dir pwntools
 
 echo "[*] Install GEF & Setup ~/.gdbinit"
 wget -O ~/.gdbinit-gef.py -q https://gef.blah.cat/py
@@ -88,6 +87,15 @@ echo "deb [signed-by=/usr/share/keyrings/sublime-archive-keyring.gpg] https://do
 sudo apt update
 sudo apt install -y sublime-text
 subl --version
+
+echo "[*] Install docker..."
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt update
+sudo apt install docker.io -y
+sudo apt-get install docker-compose-plugin -y
+sudo docker --version
+docker compose version
 
 echo "[*] Installing pwninit..."
 curl https://sh.rustup.rs -sSf | sh -s -- -y
