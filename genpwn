@@ -6,6 +6,7 @@ from pathlib import Path
 script_template = """#!/usr/bin/python3
 from pwncus import *
 
+# context.log_level = 'debug'
 exe = context.binary = ELF('./{exe_path}', checksec=False)
 {libc_line}
 
