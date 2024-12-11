@@ -1,0 +1,39 @@
+#!/bin/bash
+
+if [ $# -lt 1 ]; then
+    echo "Usage: $0 <C file> [GCC options...] -- [Program arguments...]"
+    exit 1
+fi
+
+FILE=$1
+
+if [ ! -f "$FILE" ]; then
+    echo "Error: File '$FILE' not found."
+    exit 1
+fi
+
+OUTPUT="${FILE%.c}"
+
+GCC_OPTIONS=()
+PROGRAM_ARGS=()
+SEPARATOR_FOUND=false
+for arg in "${@:2}"; do
+    if [ "$arg" == "--" ]; then
+        SEPARATOR_FOUND=true
+    elif [ "$SEPARATOR_FOUND" == false ]; then
+        GCC_OPTIONS+=("$arg")
+    else
+        PROGRAM_ARGS+=("$arg")
+    fi
+done
+
+gcc -o "$OUTPUT" "$FILE" "${GCC_OPTIONS[@]}"
+
+if [ $? -eq 0 ]; then
+    echo "Checking security features of the compiled binary..."
+    checksec $OUTPUT
+
+    ./$OUTPUT "${PROGRAM_ARGS[@]}"
+else
+    echo "Compilation failed."
+fi
