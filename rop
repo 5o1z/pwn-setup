@@ -1,0 +1,61 @@
+#!/bin/sh
+
+# Usage function to guide the user on how to use the script
+usage() {
+    echo "Usage: $0 <binary> [search_term]"
+    echo "  <binary>        Path to the binary file."
+    echo "  [search_term]   (Optional) Filter results based on this term."
+    exit 1
+}
+
+# Check if at least one argument is provided (the binary file)
+if [ -z "$1" ]; then
+    echo "Error: Binary file not provided."
+    usage
+fi
+
+# Define the binary path
+binary="./$1"
+
+# Check if the binary file exists
+if [ ! -f "$binary" ]; then
+    echo "Error: Binary file '$binary' not found."
+    exit 1
+fi
+
+# Handle the case where a search term is provided
+if [ "$2" != "" ]; then
+    # Filter results based on search term (with full gadget output)
+    output="$(ROPgadget --binary "$binary" | grep " $2")"
+else
+    # Get all ROP gadgets
+    output="$(ROPgadget --binary "$binary")"
+fi
+
+# Check if the output is empty
+if [ -z "$output" ]; then
+    echo "\033[1;31m[!] No ROP gadgets found.\033[0m"
+    exit 0
+fi
+
+# Format the output to remove extra spaces before the ':'
+formatted_output=$(echo "$output" | sed -E 's/(0x[0-9a-fA-F]+)\s*:\s*/\1: /')
+
+# Apply coloring:
+# - Addresses in red
+# - Instructions (e.g., pop, ret) in yellow
+# - Registers and other parts remain in default color
+colored_output=$(echo "$formatted_output" | awk '
+    {
+        # Color addresses in red
+        $0 = gensub(/(0x[0-9a-fA-F]+)/, "\033[1;31m\\1\033[0m", "g")
+        
+        # Print the result
+        print $0
+    }
+')
+
+# Output the result with colors
+echo "\033[1;32m[+] Extracted ROP Gadgets:\033[0m"
+echo "$colored_output"
+
