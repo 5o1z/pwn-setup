@@ -22,8 +22,6 @@ sudo apt install -y \
     ruby-dev \
     strace \
     ltrace \
-    radare2 \
-    angr \
     binwalk \
     nasm \
     wget \
@@ -35,7 +33,6 @@ sudo apt install -y \
     file \
     python3-distutils \
     zstd \
-    zsh \
     ripgrep \
     python-is-python3 \
     tzdata --fix-missing
@@ -48,6 +45,7 @@ sudo gem install one_gadget seccomp-tools
 sudo rm -rf /var/lib/gems/2.*/cache/*
 
 echo "[*] Installing Oh My Zsh..."
+sudo apt install zsh -y
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
 echo "[*] Installing Zsh plugins..."
@@ -78,14 +76,6 @@ echo "[*] Install GEF & Setup ~/.gdbinit"
 wget -O ~/.gdbinit-gef.py -q https://gef.blah.cat/py
 echo source ~/.gdbinit-gef.py >> ~/.gdbinit
 echo set disassembly-flavor intel >> ~/.gdbinit
-
-echo "[*] Installing Sublime Text..."
-sudo apt install -y apt-transport-https ca-certificates curl software-properties-common
-curl -fsSL https://download.sublimetext.com/sublimehq-pub.gpg | sudo gpg --dearmor -o /usr/share/keyrings/sublime-archive-keyring.gpg
-echo "deb [signed-by=/usr/share/keyrings/sublime-archive-keyring.gpg] https://download.sublimetext.com/ apt/stable/" | sudo tee /etc/apt/sources.list.d/sublime-text.list > /dev/null
-sudo apt update
-sudo apt install -y sublime-text
-subl --version
 
 echo "[*] Install docker..."
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
