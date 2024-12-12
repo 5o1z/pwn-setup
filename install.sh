@@ -62,7 +62,7 @@ source ~/.zshrc
 
 echo "[*] Upgrading pip and installing pwntools..."
 python3 -m pip install -U pip
-python3 -m pip install --break-system-packages --no-cache-dir pwntools
+python3 -m pip install --no-cache-dir pwntools
 
 echo "[*] Adding PATH and PYTHONPATH to .zshrc and Setup custom tools..."
 echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
