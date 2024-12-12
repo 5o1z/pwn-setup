@@ -29,6 +29,7 @@ sudo apt install -y \
     gdb-multiarch \
     netcat \
     git \
+    zsh \
     patchelf \
     file \
     python3-distutils \
@@ -44,9 +45,9 @@ echo "[*] Installing one_gadget and seccomp-tools gems..."
 sudo gem install one_gadget seccomp-tools
 sudo rm -rf /var/lib/gems/2.*/cache/*
 
-echo "[*] Installing Oh My Zsh..."
-sudo apt install zsh -y
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+echo "[*] Upgrading pip and installing pwntools..."
+python3 -m pip install -U pip
+python3 -m pip install --no-cache-dir pwntools
 
 echo "[*] Installing Zsh plugins..."
 sudo apt-get install zsh-syntax-highlighting -y
@@ -57,13 +58,6 @@ echo "[*] Configuring Zsh plugins in .zshrc..."
 sed -i '/^plugins=/c\plugins=(git zsh-autosuggestions zsh-completions)' ~/.zshrc
 echo "source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" >> ~/.zshrc
 
-echo "[*] Reloading Zsh configuration..."
-source ~/.zshrc
-
-echo "[*] Upgrading pip and installing pwntools..."
-python3 -m pip install -U pip
-python3 -m pip install --no-cache-dir pwntools
-
 echo "[*] Adding PATH and PYTHONPATH to .zshrc and Setup custom tools..."
 echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
 echo 'export PYTHONPATH=~/custom_libs:$PYTHONPATH' >> ~/.zshrc
@@ -71,10 +65,10 @@ chmod +x crun
 chmod +x genpwn
 sudo cp genpwn /usr/bin/
 sudo cp crun /usr/bin/
+source ~/.zshrc
 
 echo "[*] Install GEF & Setup ~/.gdbinit"
-wget -O ~/.gdbinit-gef.py -q https://gef.blah.cat/py
-echo source ~/.gdbinit-gef.py >> ~/.gdbinit
+bash -c "$(wget https://gef.blah.cat/sh -O -)"
 echo set disassembly-flavor intel >> ~/.gdbinit
 
 echo "[*] Install docker..."
@@ -85,10 +79,5 @@ sudo apt install docker.io -y
 sudo apt-get install docker-compose-plugin -y
 sudo docker --version
 docker compose version
-
-echo "[*] Installing pwninit..."
-curl https://sh.rustup.rs -sSf | sh -s -- -y
-. $HOME/.cargo/env
-cargo install pwninit
 
 echo "[*] Installation complete! All tools, plugins, and configurations have been set up."
