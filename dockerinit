@@ -1,0 +1,56 @@
+#!/usr/bin/python3
+
+from re import search
+from subprocess import call, Popen, check_output, PIPE, CalledProcessError
+import os
+
+def info(text: str):
+    print(f"\033[38;2;255;183;197m[+] {text}\033[0m", end='\n\r')
+
+call(f"docker build . -t dock", shell=True)
+Popen(f"docker run --privileged -p 10003:10003 -it dock", shell=True)
+
+while True:
+    output = check_output("docker ps", shell=True).decode()
+    ID = search(r'(\w+) *\w+ *\".+\" *.+', output)
+    if ID:
+        ID = ID.group(1)
+        break
+
+try:
+    try:
+        output = check_output(
+            f"docker exec -i {ID} find / -path '/srv*/x86_64-linux-gnu/libc.so.6' 2>/dev/null || docker exec -i {ID} find / -path '/srv*/libc.so.6' 2>/dev/null",
+            shell=True
+        )
+        path = output.decode().strip()
+    except CalledProcessError as e:
+        try:
+            output = check_output(
+                f"docker exec -i {ID} find / -path '*/x86_64-linux-gnu/libc.so.6' 2>/dev/null || docker exec -i {ID} find / -path '*/libc.so.6' 2>/dev/null",
+                shell=True
+            )
+            path = output.decode().strip()
+        except CalledProcessError as e:
+            path = e.output.decode().strip()
+
+    path_parts = path.split("/")
+    path = '/'.join(path_parts[:-1]) + "/"
+
+    ID = search(r"[0-9a-z]+", ID).group(0)
+    libc = search(r".*/libc[\/\w\_\-\.]+", path + "libc.so.6").group(0)
+    ld = search(r".*/ld[\/\w\_\-\.]+", path + "ld-linux-x86-64.so.2").group(0)
+
+    # Check for symlinks and resolve them in the container
+    libc_check = check_output(f"docker exec -i {ID} sh -c 'if [ -L \"{libc}\" ]; then readlink -f {libc}; else echo {libc}; fi'", shell=True).decode().strip()
+    ld_check = check_output(f"docker exec -i {ID} sh -c 'if [ -L \"{ld}\" ]; then readlink -f {ld}; else echo {ld}; fi'", shell=True).decode().strip()
+
+    info(f"Resolved libc path: {libc_check}")
+    call(f"docker cp {ID}:{libc_check} .", shell=True)
+    info(f"Resolved ld path: {ld_check}")
+    call(f"docker cp {ID}:{ld_check} .", shell=True)
+
+except Exception as e:
+    print(e)
+
+Popen(f"docker rm {ID} -f", shell=True, stdout=PIPE).stdout.read()
