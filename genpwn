@@ -16,7 +16,11 @@ def GDB(): gdb.attach(p, gdbscript='''
 c
 ''') if not args.REMOTE else None
 
-p = remote('', ) if args.REMOTE else process(argv=[exe.path], aslr=False)
+if args.REMOTE:
+    con = sys.argv[1:]
+    p = remote(con[0], int(con[1]))
+else:
+    p = process(argv=[exe.path], aslr=False)
 set_p(p)
 if args.GDB: GDB(); input()
 
