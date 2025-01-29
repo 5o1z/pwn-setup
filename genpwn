@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-
 import sys
 import os
 from pathlib import Path
@@ -9,25 +8,25 @@ from pwncus import *
 
 context.log_level = 'debug'
 exe = context.binary = ELF('./{exe_path}', checksec=False)
-{libc_line}
+libc = exe.libc
 
-def GDB(): gdb.attach(p, gdbscript='''
+def start(argv=[], *a, **kw):
+    if args.GDB:
+        return gdb.debug([exe.path] + argv, gdbscript='''
+        init-pwndbg
 
+        c
+        '''.format(**locals()), *a, **kw)
+    elif args.REMOTE:
+        return remote(sys.argv[1], sys.argv[2], *a, **kw)
+    else:
+        return process([exe.path] + argv, *a, **kw)
 
-c
-''') if not args.REMOTE else None
-
-if args.REMOTE:
-    con = sys.argv[1:]
-    p = remote(con[0], int(con[1]))
-else:
-    p = process(argv=[exe.path], aslr=False)
-set_p(p)
-if args.GDB: GDB(); input()
+p = start()
 
 # ==================== EXPLOIT ====================
 
-def exploit:
+def exploit():
 
 
 
@@ -35,21 +34,17 @@ def exploit:
 
 if __name__ == '__main__':
   exploit()
-
-
 """
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: genpwn <binary_path> [libc_path]")
+        print("Usage: genpwn <binary_path>")
         sys.exit(1)
 
     binary_path = sys.argv[1]
-    libc_path = sys.argv[2] if len(sys.argv) > 2 else None
 
     script_content = script_template.format(
-        exe_path = binary_path,
-        libc_line = f"libc = ELF('{libc_path}', checksec=False)" if libc_path else ""
+        exe_path = binary_path
     )
 
     exploit_path = Path("xpl.py")

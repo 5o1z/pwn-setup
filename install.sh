@@ -53,18 +53,24 @@ echo "[*] Installing Zsh plugins..."
 sudo apt-get install zsh-syntax-highlighting -y
 git clone https://github.com/zsh-users/zsh-autosuggestions ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions
 git clone https://github.com/zsh-users/zsh-completions ~/.oh-my-zsh/custom/plugins/zsh-completions
+git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
 
 echo "[*] Configuring Zsh plugins in .zshrc..."
-sed -i '/^plugins=/c\plugins=(git zsh-autosuggestions zsh-completions)' ~/.zshrc
-echo "source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" >> ~/.zshrc
+sed -i '/^plugins=/c\plugins=(git zsh-autosuggestions zsh-completions zsh-syntax-highlighting)' ~/.zshrcsource ~/.zshrc
 
 echo "[*] Adding PATH and PYTHONPATH to .zshrc and Setup custom tools..."
 echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
 echo 'export PYTHONPATH=~/custom_libs:$PYTHONPATH' >> ~/.zshrc
 chmod +x crun
 chmod +x genpwn
+chmod +x subl
+chmod +x ida64
+chmod +x ida
 sudo cp genpwn /usr/bin/
 sudo cp crun /usr/bin/
+sudo cp subl /usr/bin/
+sudo cp ida /usr/bin/
+sudo cp ida64 /usr/bin/
 source ~/.zshrc
 
 echo "[*] Install GEF & Setup ~/.gdbinit"

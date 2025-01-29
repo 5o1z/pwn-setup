@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-
 from re import search
 from subprocess import call, Popen, check_output, PIPE, CalledProcessError
 import os
