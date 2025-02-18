@@ -13,7 +13,6 @@ libc = exe.libc
 def start(argv=[], *a, **kw):
     if args.GDB:
         return gdb.debug([exe.path] + argv, gdbscript='''
-        init-pwndbg
 
         c
         '''.format(**locals()), *a, **kw)
